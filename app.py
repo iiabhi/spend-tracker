@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 from functools import wraps
 
 from flask import Flask, redirect, render_template, request, session, url_for
@@ -95,14 +96,56 @@ def logout():
     return redirect(url_for("login"))
 
 
-# ------------------------------------------------------------------ #
-# Placeholder routes — students will implement these                  #
-# ------------------------------------------------------------------ #
+def _parse_date(value):
+    value = (value or "").strip()
+    if not value:
+        return None
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        return None
+    return value
+
 
 @app.route("/profile")
 @login_required
 def profile():
-    return "Profile page — coming in Step 4"
+    date_from = _parse_date(request.args.get("from"))
+    date_to = _parse_date(request.args.get("to"))
+
+    query = "SELECT * FROM expenses WHERE user_id = ?"
+    params = [session["user_id"]]
+
+    if date_from:
+        query += " AND date >= ?"
+        params.append(date_from)
+    if date_to:
+        query += " AND date <= ?"
+        params.append(date_to)
+
+    query += " ORDER BY date DESC"
+
+    conn = get_db()
+    try:
+        user = conn.execute(
+            "SELECT * FROM users WHERE id = ?", (session["user_id"],)
+        ).fetchone()
+        expenses = conn.execute(query, params).fetchall()
+    finally:
+        conn.close()
+
+    return render_template(
+        "profile.html",
+        user=user,
+        expenses=expenses,
+        date_from=date_from or "",
+        date_to=date_to or "",
+    )
+
+
+# ------------------------------------------------------------------ #
+# Placeholder routes — students will implement these                  #
+# ------------------------------------------------------------------ #
 
 
 @app.route("/expenses/add")

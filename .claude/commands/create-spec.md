@@ -9,11 +9,12 @@ Spendly expense tracker. Always follow the rules in CLAUDE.md.
 
 User input: $ARGUMENTS
 
-## Step 1 — Check working directory is clean
-Run `git status` and check for uncommitted, unstaged, or
-untracked files. If any exist, stop immediately and tell
-the user to commit or stash changes before proceeding.
-DO NOT CONTINUE until the working directory is clean.
+## Step 1 — Check working directory and commit any pending changes
+Run `git status`. If there are uncommitted, unstaged, or
+untracked files, stage all of them and commit them with a
+concise, descriptive commit message summarizing the changes
+before proceeding. Do not continue to Step 2 until the
+working directory is clean.
 
 ## Step 2 — Parse the arguments
 From $ARGUMENTS extract:
